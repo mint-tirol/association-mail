@@ -8,11 +8,15 @@ const logger = require('./logger.service');
 const mailConfig = {
   host: CONFIG.email_smtp,
   port: CONFIG.email_port,
+  // requireTLS: true,
   secure: CONFIG.email_secure, // true for 465, false for other ports
   auth: {
     user: CONFIG.email_user, // generated ethereal user
     pass: CONFIG.email_password, // generated ethereal password
   },
+  // tls: {
+  //   ciphers: 'SSLv3',
+  // },
 };
 
 const transporter = nodemailer.createTransport(mailConfig);
@@ -50,7 +54,11 @@ function sendNewsletter({
         mailOptions.html = htmlToSend;
 
         // eslint-disable-next-line no-unused-vars
-        await transporter.sendMail(mailOptions);
+        try {
+          await transporter.sendMail(mailOptions);
+        } catch (error) {
+          console.log(error);
+        }
         resolve();
       },
     );

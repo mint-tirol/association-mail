@@ -18,7 +18,7 @@ const setVerboseLevel = (argv) => {
 };
 
 function getValue(value) {
-  if (value === undefined) {
+  if (value === undefined || value === null) {
     return null;
   }
   if (Object.prototype.hasOwnProperty.call(value, 'result')) {
@@ -214,88 +214,93 @@ async function sendMail(argv) {
     }
   }
 }
+function main() {
+  // eslint-disable-next-line no-unused-expressions
+  yargs(hideBin(process.argv))
+    .usage('Usage: $0 <command> [options]')
+    .middleware(setVerboseLevel)
+    .command('welcome', 'send welcome email', () => {}, (argv) => {
+      sendWelcome(argv);
+    })
+    .command('testmail', 'send test email', (argv) => argv
+      .option('template', {
+        alias: 't',
+        describe: 'template name',
+        default: '00_Message.html',
+      })
+      .option('name', {
+        alias: 'n',
+        describe: 'Name',
+      })
+      .option('message', {
+        alias: 'm',
+        describe: 'Message',
+      })
+      .option('subject', {
+        describe: 'Subject',
+      })
+      .option('email', {
+        alias: 'e',
+        describe: 'Email',
+      }), (argv) => { sendTestmail(argv); })
+    .command('newsletter', 'send newsletter email', (argv) => argv
+      .option('template', {
+        alias: 't',
+        describe: 'template name',
+        default: '00_Message.html',
+      })
+      .option('name', {
+        alias: 'n',
+        describe: 'Name',
+      })
+      .option('message', {
+        alias: 'm',
+        describe: 'Message',
+      })
+      .option('subject', {
+        describe: 'Subject',
+      })
+      .option('email', {
+        alias: 'e',
+        describe: 'Email',
+      }), (argv) => { sendNewsletter(argv); })
+    .command('mail', 'send email with attachmend', (args) => args
+      .option('template', {
+        alias: 't',
+        describe: 'template name',
+        default: '00_Message.html',
+      })
+      .option('message', {
+        alias: 'm',
+        describe: 'Message',
+      })
+      .option('docx', {
+        alias: 'd',
+        describe: 'Doc Template',
+      })
+      .option('subject', {
+        describe: 'Subject',
+      })
+      .option('all', {
+        alias: 'a',
+        type: 'boolean',
+        describe: 'Send to all',
+      }), (argv) => { sendMail(argv); })
+    .option('xlsxFile', {
+      alias: 'f',
+      type: 'string',
+      required: true,
+      description: 'Stammdaten file',
+    })
+    .count('verbose')
+    .alias('v', 'verbose')
+    .describe('v', 'Run with verbose logging')
+    .showHelpOnFail(true)
+    .demandCommand(1, '')
+    .help('h')
+    .alias('h', 'help')
+    .epilog('copyright 2019')
+    .argv;
+}
 
-yargs(hideBin(process.argv))
-  .usage('Usage: $0 <command> [options]')
-  .middleware(setVerboseLevel)
-  .command('welcome', 'send welcome email', () => { }, (argv) => {
-    sendWelcome(argv);
-  })
-  .command('testmail', 'send test email', (argv) => argv
-    .option('template', {
-      alias: 't',
-      describe: 'template name',
-      default: '00_Message.html',
-    })
-    .option('name', {
-      alias: 'n',
-      describe: 'Name',
-    })
-    .option('message', {
-      alias: 'm',
-      describe: 'Message',
-    })
-    .option('subject', {
-      describe: 'Subject',
-    })
-    .option('email', {
-      alias: 'e',
-      describe: 'Email',
-    }), (argv) => { sendTestmail(argv); })
-  .command('newsletter', 'send newsletter email', (argv) => argv
-    .option('template', {
-      alias: 't',
-      describe: 'template name',
-      default: '00_Message.html',
-    })
-    .option('name', {
-      alias: 'n',
-      describe: 'Name',
-    })
-    .option('message', {
-      alias: 'm',
-      describe: 'Message',
-    })
-    .option('subject', {
-      describe: 'Subject',
-    })
-    .option('email', {
-      alias: 'e',
-      describe: 'Email',
-    }), (argv) => { sendNewsletter(argv); })
-  .command('mail', 'send email with attachmend', (args) => args
-    .option('template', {
-      alias: 't',
-      describe: 'template name',
-      default: '00_Message.html',
-    })
-    .option('message', {
-      alias: 'm',
-      describe: 'Message',
-    })
-    .option('docx', {
-      alias: 'd',
-      describe: 'Doc Template',
-    })
-    .option('subject', {
-      describe: 'Subject',
-    })
-    .option('all', {
-      alias: 'a',
-      type: 'boolean',
-      describe: 'Send to all',
-    }), (argv) => { sendMail(argv); })
-  .option('xlsxFile', {
-    alias: 'f',
-    type: 'string',
-    required: true,
-    description: 'Stammdaten file',
-  })
-  .count('verbose')
-  .alias('v', 'verbose')
-  .describe('v', 'Run with verbose logging')
-  .showHelpOnFail(true)
-  .demandCommand(1, '')
-  .help('h')
-  .alias('h', 'help')
-  .epilog('copyright 2019');
+main();
