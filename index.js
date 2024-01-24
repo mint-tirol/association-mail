@@ -17,6 +17,18 @@ const setVerboseLevel = (argv) => {
   return {};
 };
 
+function formatDate(date) {
+  const d = new Date(date);
+  let month = `${d.getMonth() + 1}`;
+  let day = `${d.getDate()}`;
+  const year = d.getFullYear();
+
+  if (month.length < 2) month = `0${month}`;
+  if (day.length < 2) day = `0${day}`;
+
+  return [day, month, year].join('.');
+}
+
 function getValue(value) {
   if (value === undefined || value === null) {
     return null;
@@ -37,7 +49,7 @@ async function sendWelcome(argv) {
 
   for (let index = startRow; index < 1000; index += 1) {
     const id = getValue(worksheet.getRow(index).getCell(1).value);
-    if (id === undefined) {
+    if (!id || id === '') {
       return;
     }
     const alreadySend = getValue(worksheet.getRow(index).getCell(13).value);
@@ -94,7 +106,7 @@ async function sendNewsletter(argv) {
 
   for (let index = startRow; index < 1000; index += 1) {
     const id = getValue(worksheet.getRow(index).getCell(1).value);
-    if (id === undefined) {
+    if (!id || id === '') {
       return;
     }
     const newsletterActive = getValue(worksheet.getRow(index).getCell(14).value);
@@ -144,8 +156,12 @@ async function sendMail(argv) {
 
     try {
       id = getValue(worksheet.getRow(index).getCell(1).value);
-      if (id === undefined) {
+      if (!id) {
         return;
+      }
+
+      if (argv.id && argv.id !== +id) {
+        continue;
       }
 
       if (argv.all !== true) {
@@ -175,11 +191,18 @@ async function sendMail(argv) {
 
       if (id && name && email && address && place) {
         logger.service('replace template for: ', (`0000${id}`).slice(-4), ' ', name, email);
+
+        const today = (new Date());
+        const expire = (new Date()).setDate(today.getDate() + 31);
+
         await docreplace.render({
           name,
           address,
           place,
           id: (`0000${id}`).slice(-4),
+          year: today.getFullYear(),
+          date: formatDate(today),
+          expire: formatDate(expire),
         }, `${id}_${name}.docx`);
         logger.success();
 
@@ -210,11 +233,13 @@ async function sendMail(argv) {
       }
     } catch (e) {
       logger.fail();
-      logger.error('replace template pdf for: ', id, name, email);
+      logger.error('replace template pdf for: ', id, name, email, e);
     }
   }
 }
 function main() {
+  console.log('ENV: ', process.env.NODE_ENV);
+
   // eslint-disable-next-line no-unused-expressions
   yargs(hideBin(process.argv))
     .usage('Usage: $0 <command> [options]')
@@ -280,6 +305,10 @@ function main() {
       })
       .option('subject', {
         describe: 'Subject',
+      })
+      .option('id', {
+        describe: 'User ID',
+        type: 'number',
       })
       .option('all', {
         alias: 'a',

@@ -9,7 +9,7 @@ const mailConfig = {
   host: CONFIG.email_smtp,
   port: CONFIG.email_port,
   // requireTLS: true,
-  secure: CONFIG.email_secure, // true for 465, false for other ports
+  //secure: CONFIG.email_secure, // true for 465, false for other ports
   auth: {
     user: CONFIG.email_user, // generated ethereal user
     pass: CONFIG.email_password, // generated ethereal password
@@ -35,10 +35,10 @@ function sendNewsletter({
         }
 
         const mailOptions = {
-          from: '"MINT Oberland 💌" <info@mint.tirol>', // sender address
+          from: '"MINT Oberland" <office@mint.tirol>', // sender address
           to: email, // list of receivers
           subject, // Subject line
-          text: 'Automatisch generietes Email', // plain text body
+          text: 'Automatisch HTML generietes Email', // plain text body
           html: '', // html body
           attachments,
         };
