@@ -44,11 +44,7 @@ function sendNewsletter({
         };
 
         const template = handlebars.compile(html);
-        const replacements = {
-          name: payload.name,
-          message: payload.message,
-          userId: payload.userId,
-        };
+        const replacements = payload;
 
         const htmlToSend = template(replacements);
         mailOptions.html = htmlToSend;

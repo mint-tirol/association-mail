@@ -221,6 +221,7 @@ async function sendMail(argv) {
               name,
               message: argv.message,
               userId: id,
+              year: today.getFullYear(),
             },
             attachments: [{
               filename: `${fileTemplateName}.pdf`,
