@@ -100,6 +100,7 @@ async function sendTestmail(argv) {
 }
 
 async function sendNewsletter(argv) {
+  logger.debug('Start sendNewsletter');
   const workbook = new Excel.Workbook();
   await workbook.xlsx.readFile(argv.xlsxFile);
   const worksheet = workbook.getWorksheet('Stammdaten');
@@ -153,6 +154,8 @@ async function sendMail(argv) {
     let email;
     let memberActive;
     let id;
+    let alreadyPaidCol;
+    let alreadyPaid;
 
     try {
       id = getValue(worksheet.getRow(index).getCell(1).value);
@@ -162,6 +165,11 @@ async function sendMail(argv) {
 
       if (argv.id && argv.id !== +id) {
         continue;
+      }
+
+      if (argv.onlyUnpaid && +argv.onlyUnpaid > 0) {
+        alreadyPaidCol = +argv.onlyUnpaid - 7;
+        alreadyPaid = getValue(worksheet.getRow(index).getCell(alreadyPaidCol).value);
       }
 
       if (argv.all !== true) {
@@ -182,6 +190,11 @@ async function sendMail(argv) {
 
       if (memberActive !== 'Aktiv') {
         logger.debug(`Member ${name} inactive`);
+        continue;
+      }
+
+      if (alreadyPaid === 'x') {
+        logger.debug(`Member ${name} already paid`);
         continue;
       }
 
@@ -303,6 +316,10 @@ function main() {
       .option('docx', {
         alias: 'd',
         describe: 'Doc Template',
+      })
+      .option('onlyUnpaid', {
+        alias: 'u',
+        describe: 'send Only to unpaid put year',
       })
       .option('subject', {
         describe: 'Subject',

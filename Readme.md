@@ -28,7 +28,7 @@ node index mail -t 03_Jahreshauptversammlung.html --subject "Einladung Jahreshau
 Mitgliedsbeitrag
 
 ~~~ bash
-node index mail -t 04_Rechnung.html --subject Mitgliedsbeitrag -d "example\letter.docx" -f "example\members.xlsx" -a  -vv
+node index mail -t 04_Rechnung.html --subject Mitgliedsbeitrag -d "example\letter.docx" -f "example\members.xlsx" -a  -vv -u 24
 ~~~
 
 ## Production
